@@ -1,0 +1,13 @@
+#include <stdio.h>
+
+int main (void){
+	int c;
+
+	while ((c = fgetc(stdin)) != EOF){
+		if (c == ' ' || c == '\t' || c == '\n') fputc('\n', stdout);
+		else fputc('*', stdout);
+	}
+	return 0;
+}
+
+

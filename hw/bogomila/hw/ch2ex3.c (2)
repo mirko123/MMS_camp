@@ -1,0 +1,40 @@
+#include<stdio.h>
+
+int htoi(char str[]) {
+    
+    int n = 0;
+    int i = 0;
+    
+    int inHex;
+    int hexdigit;
+    
+    if(str[i] == '0')
+    {
+        ++i;
+        if(str[i] == 'x' || str[i] == 'X') ++i;
+    }
+    
+    inHex  = YES;
+    
+    for(;inHex == YES;++i)
+    {
+        if(s[i] >='0' && s[i] <='9')
+            hexdigit= s[i] - '0';
+            
+        else if(s[i] >='a' && s[i] <='f')
+            hexdigit= s[i] -'a' + 10;
+            
+        else if(s[i] >='A' && s[i] <='F')
+            hexdigit= s[i] -'A' + 10;
+            
+        else
+            inHex = NO;
+    }
+     
+        if(inHex == YES)
+        n = 16 * n + hexdigit;
+}
+return n;
+}
+    
+

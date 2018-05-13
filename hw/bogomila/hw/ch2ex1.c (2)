@@ -1,0 +1,22 @@
+#include <stdio.h>
+
+int main(void){
+	printf("Min Signed Char %d\n",-(char)((unsigned char) ~0 >> 1) - 1);
+    printf("Max Signed Char %d\n",(char) ((unsigned char) ~0 >> 1));
+
+    printf("Min Signed Short %d\n",-(short)((unsigned short)~0 >>1) -1);
+    printf("Max Signed Short %d\n",(short)((unsigned short)~0 >> 1));
+
+    printf("Min Signed Int %d\n",-(int)((unsigned int)~0 >> 1) -1);
+    printf("Max Signed Int %d\n",(int)((unsigned int)~0 >> 1));
+
+    printf("Min Signed Long %ld\n",-(long)((unsigned long)~0 >>1) -1);
+    printf("Max signed Long %ld\n",(long)((unsigned long)~0 >> 1));
+
+    printf("Unsigned Char %d\n",(unsigned char)~0);
+    printf("Unsigned Short %d\n",(unsigned short)~0);
+    printf("Unsigned Int %u\n",(unsigned int)~0);
+    printf("Unsigned Long %lu\n",(unsigned long)~0);
+
+    return 0;
+}

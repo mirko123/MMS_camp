@@ -1,0 +1,19 @@
+int main(void)
+{
+    int len,max;
+    char line[MAXLINE],maxline[MAXLINE];
+
+    max =0;
+
+    while((len=mgetline(line,MAXLINE)) > 0)
+    {
+        if(len > max)
+        {
+            max = len;
+            copy(maxline,line);
+        }
+    }
+
+    if(max>0)
+        printf("%s",maxline);
+}

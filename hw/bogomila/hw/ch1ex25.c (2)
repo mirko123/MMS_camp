@@ -1,0 +1,53 @@
+
+#include <stdio.h>
+
+void check(int );
+
+int main(void) {
+    
+     if( brace < 0)
+    {
+        printf("Unmatched Braces\n");
+        brace = 0;
+    }   
+    else if( brack < 0)
+    {
+        printf("Unmatched brackets\n");
+        brack = 0;
+    }
+    else if( paren < 0)
+    {
+        printf("Unmatched parenthesis\n");
+        paren = 0;
+    }
+    
+    if(brace > 0)
+        printf("Unmatched braces\n");
+    else if(brack > 0)
+        printf("Unmatched brackets\n");
+    else if(paren > 0)
+        printf("Unmatched parenthesis\n"); 
+
+    return 0;
+}
+}
+
+void check (int c)
+{
+     int brace;
+     int brack;
+     int paren;
+
+    if ( c == '{')
+        --brace;
+    else if ( c == '}')
+        ++brace;
+    else if( c == '(')
+        --brack;
+    else if( c == ')')
+        ++brack;
+    else if( c == '[')
+        --paren;
+    else if( c == ']')
+        ++paren;
+}

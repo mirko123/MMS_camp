@@ -1,0 +1,35 @@
+#include<iostream>
+#include<strlen>
+
+void itoa(int n,char array[])
+{
+    int sign;
+    int temp;
+    int i;
+    int j;
+    int k;
+    
+    
+    sign = n; 
+
+    i = 0;
+
+    while((n /= 10) != 0) {
+     
+        array[i] = abs(n % 10) + '0';
+        i++;
+    
+    }
+    
+    if( sign < 0)
+        array[i++] = '-';
+
+    array[i] = '\0';
+
+    for(k = 0, j = strlen(array) - 1;k < j; k++, j--) {
+        temp = array[k];
+        array[k] = array[j];
+        array[j] = temp;
+    }
+        
+}

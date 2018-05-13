@@ -1,0 +1,134 @@
+SGI Image File Format File Format Summary
+	
+
+Also Known As: SGI, RLE, Haeberli
+
+Type 	Bitmap
+Colors 	16 million
+Compression 	RLE
+Maximum Image Size 	64Kx64K pixels
+Multiple Images Per File 	No
+Numerical Format 	Big-endian
+Originator 	Silicon Graphics
+Platform 	UNIX
+Supporting Applications 	SGI graphics software
+See Also 	None
+
+Usage
+The SGI image file format is a generic bitmap format used for storing black-and-white, gray-scale, and color images.
+
+Comments
+SGI is one of the few formats to make use of a scan-line offset table to indicate the beginning of each scan line within compressed image data. SGI files may also contain only color maps or alpha channel data, and they may have a very large number of bit planes.
+
+Vendor specifications are available for this format.
+
+Sample images are available for this format.
+
+The SGI image file format is actually part of the SGI image library found on all Silicon Graphics machines. SGI image files may store black-and-white (.BW extension), color RGB (.RGB extension), or color RGB with alpha channel data (.RGBA extension) images. SGI image files may also have the generic extension .SGI as well.
+
+The SGI image file format was developed by Paul Haeberli at Silicon Graphics.
+
+Contents:
+File Organization
+File Details
+For Further Information
+File Organization
+
+The SGI image file format header is 512 bytes in size and has the following structure:
+
+typedef struct _SGIHeader
+{
+  SHORT Magic;          /* Identification number (474) */
+  CHAR Storage;         /* Compression flag */
+  CHAR Bpc;             /* Bytes per pixel */
+  WORD Dimension;       /* Number of image dimensions */
+  WORD XSize;           /* Width of image in pixels */
+  WORD YSize;           /* Height of image in pixels */
+  WORD ZSize;           /* Number of bit planes */
+  LONG PixMin;          /* Smallest pixel value */
+  LONG PixMax;          /* Largest pixel value */
+  CHAR Dummy1[4];       /* Not used */
+  CHAR ImageName[80];   /* Name of image */
+  LONG ColorMap;        /* Format of pixel data */
+  CHAR Dummy2[404];     /* Not used */
+} SGIHEAD;
+
+Magic is the SGI file identification value; it is always decimal 474.
+
+Storage indicates whether the image data is compressed using an RLE algorithm (value of 01h) or is stored uncompressed (value of 00h).
+
+Bpc is the number of bytes per pixel. This value may be 01h or 02h; most SGI images have a value of 01h, or one byte per pixel.
+
+Dimension indicates how the image data is stored. A value of 01h indicates that a single-channel image is stored as one long scan line. A value of 02h indicates a single-channel bitmap whose dimensions are indicated by the XSize and YSize header field values. A value of 03h indicates a multi-channel bitmap with the number of channels shown by the value of the ZSize header field.
+
+XSize and YSize are the width and height of a bitmap image in pixels.
+
+ZSize is the number of channels in a bitmap image. Black-and-white images typically have a ZSize of 01h, RGB images a ZSize of 03h. RGB images with an alpha channel have a ZSize of 04h.
+
+PixMin specifies the minimum pixel value in the image. This value is typically 00h.
+
+PixMax specifies the maximum pixel value in the image. This value is typically FFh.
+
+Dummy1 is a 4-byte NULL character field that is not used.
+
+ImageName is an 80-byte character field used to store the name of the image. The name string may be up to 79 characters in length and must be terminated with a NULL.
+
+ColorMap specifies how the pixel values are to be regarded. Values are shown below:
+
+00h
+
+    Normal pixel values. Black-and-white images have one channel, color images have three channels, and color images with an alpha value have four channels.
+
+01h
+
+    Dithered image with only one channel of data. Each dithered pixel value is one byte in size, with the red channel value stored in bits 0, 1, and 2; the green value in bits 3, 4, and 5; and the blue value in bits 6 and 7.
+
+02h
+
+    Single-channel image. The image contains pixels that are index values into a color map stored in another SGI file.
+
+03h
+
+    Stored image data is a color map to be used for other images and should not be displayed.
+
+SGI files with ColorMap values of 01h and 02h are considered obsolete.
+
+Dummy2 is a 404-byte NULL character field used to pad the header out to an even 512 bytes in size.
+
+In SGI files containing uncompressed image data, the image data appears immediately after the header. In SGI files with compressed image data, a scan-line offset table follows the header, and the compressed image data follows the table.
+File Details
+
+The majority of SGI files store single-channel, 8-bits-per-pixel, black-and-white images. Such images typically have a Bpc of 01h, a Dimension of 01h, and a ColorMap of 01h. Color RGB images typically have a Bpc of 01h, a Dimension of 02h (or 03h if an alpha channel is present), a ZSize of 03h (or 04h if an alpha channel is present), and a ColorMap of 01h.
+
+The origin (0,0) for all SGI images is the lower-left corner of the display with the first scan line starting at the bottom of the image.
+
+SGI files are found in two basic flavors: run-length encoded and verbatim (uncompressed). Verbatim image data is written out by plane as scan lines. For example, a 3-channel image has all of the data for its first plane written first, followed by the data for the second plane, and finally by the data for the third. If Bpc is set to 01h, then each scan line contains an XSize number of BYTEs; if Bpc is set to 02h, then each scan line contains an XSize number of SHORTs.
+
+In RLE image data, a scan-line offset table is used to keep track of the offset where each scan line begins within the compressed image data. The offset table appears immediately after the header and before the compressed image data. The table contains one entry per scan line, determined by multiplying the YSize and ZSize values together. Each entry is a LONG (4-byte) value.
+
+The offset table is actually two tables written consecutively to the SGI file. The first table contains the starting offset values of each scan line; each offset is calculated from the beginning of the file. If the image data is stored as two or more bit planes (ZSize > 1), then all of the offset values for the first plane are stored first, followed by all of the offsets for the second plane, and so on. The second table stores the compressed length of each encoded scan line in BYTEs. And, once again, if the data is stored in more than one bit plane, the offset values are stored by plane.
+
+Note that the scan-line table cannot be ignored during the reading of compressed data, even if you are decoding the image completely from beginning to end. There are several reasons for this:
+
+    The SGI specification dictates that scan lines need not be stored in consecutive order; only planes are required to be stored consecutively. It is therefore possible that a scan line might be stored in an interleaved fashion (0, 4, 8, 12, ... rather than 0, 1, 2, 3, ...).
+
+    Multiple entries in the scan-line table might point to the same scan line. An image with many identical scan lines (containing all white pixels, for example) might encode only one such scan line and have all identical entries in the offset table pointing to the same line. It is also possible that a gray scale image stored as three planes (RGB) would have each plane pointing towards the same scan line.
+
+The RLE algorithm used to compress the SGI image data varies in format depending upon the value of the Bpc field in the header. If the Bpc is 01h, this indicates one byte per pixel. A simple 2-byte RLE encoding scheme is used, in which the lowest seven bits of the first byte is the run count. The high bit in this byte is the run-count flag. If this bit is set to 0, then the next byte (the run value) is repeated a number of times equal to the run count. If the run count flag is 1, then the run count indicates the number of BYTEs to copy literally from the input stream to the output stream.
+
+If the Bpc value is 02h, then each pixel is stored in a 2-byte SHORT value. The RLE algorithm is basically the same, with each RLE packet being three BYTEs long, rather than two. Bits 0 through 6 of the low byte are the run count, and bit 7 is the run-count flag. The run value is the SHORT value following the run-count byte. If bit 7 is set to 0, this indicates a repeat run count of SHORT pixel values. If bit 7 is set to 1, this indicates a literal run count of SHORT pixel values. Using either pixel size, each decompressed scan line should be XSize pixels in length.
+For Further Information
+
+For further information about the SGI image format, see the specification included on the CD-ROM. Information on all Silicon Graphics file formats may be obtained directly from SGI:
+
+Silicon Graphics Inc.
+Attn: Visual Magic Marketing
+2011 North Shoreline Blvd.
+Mountain View, CA 94039-7311
+Voice: 800-800-4SGI
+FTP: ftp://sgi.com/
+WWW: http://www.sgi.com/
+
+If you are using a Silicon Graphics workstation, you may refer to the documentation on the -limage library by using the man command man 4 rgb.
+
+

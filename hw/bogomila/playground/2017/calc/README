@@ -1,0 +1,9 @@
+nasko@melkor:~/mnk/playground/calc$ cc -st -I. -I../libs/include -L../libs/lib -DDEC_CALC calc_dec.c calc_hex.c calc.c -lstate -lqueue -o calc
+calc_dec.c:
+calc_hex.c:
+calc.c:
+nasko@melkor:~/mnk/playground/calc$ echo "1 2 3 4 + + + ." | env LD_LIBRARY_PATH=../libs/lib ./calc
+10
+nasko@melkor:~/mnk/playground/calc$ echo "1 2 3 4 + + + 5 * ." | env LD_LIBRARY_PATH=../libs/lib ./calc
+50
+nasko@melkor:~/mnk/playground/calc$ 

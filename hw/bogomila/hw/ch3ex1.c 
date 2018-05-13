@@ -1,0 +1,24 @@
+#include<stdio.h>
+
+int binsearch( int x, int array[], int n) {
+    
+    int left;
+    int right;
+    int p;
+    
+    left = 0;
+    right = n - 1 ;
+    
+     p = (left + right) / 2;
+    
+    while(left <= right && x != array[p]) {
+
+         ( x < array[p]) ? (right = p - 1) : (left = p + 1);
+         
+           p = (left + right) / 2;
+        
+    }
+    
+  return  ( x == array[p]) ? p : -1;
+    
+}

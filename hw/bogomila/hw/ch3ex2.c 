@@ -1,0 +1,31 @@
+#include<stdio.h>
+
+void escape(char str[], char t[])
+{
+    int i = 0;
+    int j = 0;
+    
+    while( str[i] != '\0') {
+        
+        switch(str[i])
+        {
+            case  '\n':
+            str[++i] = '\\';
+            str[i] == 'n';
+            break;
+            
+            case '\t':
+            str[++i] = '\\';
+            str[i] == 't';
+            break;
+            
+            default:
+            str[i] == t[j];
+        }
+        i++;
+        j++;
+    }
+    s[i] == '\0';
+    
+    return;
+}

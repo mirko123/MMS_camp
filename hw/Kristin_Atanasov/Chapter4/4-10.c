@@ -1,0 +1,243 @@
+#include <stdio.h>
+#include <stdlib.h> /* for atof() */
+#include <math.h>
+#include <string.h>
+
+#define MAXOP 100 /* max size of operand or operator */
+#define NUMBER '0' /* signal that a number was found */
+#define VAR 26
+#define SIN '1'
+#define COS '2'
+#define EXP '3'
+#define POW '4'
+#define VSET '5'
+#define VGET '6'
+#define UNGETS '7'
+int getop(char []);
+void push(double);
+double pop(void);
+double top(void);
+void swap(void);
+void duplicate(void);
+void clear(void);
+void ungets(char s[]);
+double var[VAR];
+int getline(int s[], int lim);
+
+int k = 0;
+int x[MAXOP];
+/* reverse Polish calculator */
+int main(void) {
+    int type;
+    double op2;
+    char s[MAXOP];
+    getline(x, MAXOP);
+    while ((type = getop(s)) != EOF) {
+        switch (type) {
+            case NUMBER:
+                push(atof(s));
+                break;
+            case '+':
+                push(pop() + pop());
+                break;
+            case '*':
+                push(pop() * pop());
+                break;
+            case '-':
+                op2 = pop();
+                push(pop() - op2);
+                break;
+            case '/':
+                op2 = pop();
+                if (op2 != 0.0)
+                    push(pop() / op2);
+                else
+                    printf("error: zero divisor\n");
+                break;
+            case '%':
+                op2 = pop();
+                push ((int) pop() % (int) op2);
+                break;
+            case '\n':
+                printf("\t%.8g\n", op2 = pop());
+                var['R' - 'A'] = op2;
+                getline(x, MAXOP);
+                k = 0;
+                break;
+            case '?':
+                top();
+                break;
+            case '#':
+                swap();
+                break;
+            case '$':
+                duplicate();
+                break;
+            case '^':
+                clear();
+                break;
+            case SIN:
+                push(sin(pop()));
+                break;
+            case COS:
+                push(cos(pop()));
+                break;
+            case EXP:
+                push(exp(pop()));
+                break;
+            case POW:
+                op2 = pop();
+                push(pow(pop(), op2));
+                break;
+            case VSET:
+                var[s[0] - 'A'] = top();
+                break;
+            case VGET:
+                push(var[s[0] - 'a']);
+                break;
+            case UNGETS:
+                ungets(s);
+                break;
+            default:
+                printf("error: unknown command %s\n", s);
+                break;
+        }
+    }
+    return 0;
+}
+#define MAXVAL 100 /* maximum depth of val stack */
+
+int sp = 0; /* next free stack position */
+double val[MAXVAL]; /* value stack */
+/* push: push f onto value stack */
+void push(double f) {
+    if (sp < MAXVAL)
+        val[sp++] = f;
+    else
+        printf("error: stack full, can't push %g\n", f);
+    return;
+}
+/* pop: pop and return top value from stack */
+double pop(void)
+{
+    if (sp > 0)
+        return val[--sp];
+    else {
+        printf("error: stack empty\n");
+        return 0.0;
+    }
+}
+#include <ctype.h>
+
+int getch(void);
+void ungetch(int);
+/* getop: get next character or numeric operand */
+int getop(char s[]){
+    int c, next, i;
+
+    while ((s[0] = c = x[k++]) == ' ' || c == '\t') ;
+    if (c == '\n' || c == EOF)
+        return c;
+    next = x[k];
+    if (isdigit(c) || (( c == '+' || c == '-') && isdigit(next))){
+        s[i = 0] = c;
+        while (isdigit(s[++i] = c = x[k++])) ;
+        if (c == '.'){
+            while (isdigit(s[++i] = c = x[k++])) ;
+        }
+        k--;
+        s[i] = '\0';
+        c = NUMBER;
+    } else if (isalpha(c)){
+        i = 0;
+        while (isalpha(s[++i] = c = x[k++]))
+            ;
+        k--;
+        s[i] = '\0';
+        if (i > 1){
+            if (!strcmp(s, "SIN")){
+                return SIN;
+            } else if (!strcmp(s, "COS")){
+                return COS;
+            } else if (!strcmp(s, "EXP")){
+                return EXP;
+            } else if (!strcmp(s, "POW")){
+                return POW;
+            } /* else {
+                printf("error: unknown functions %s\n", s);
+            } */
+        } else {
+            if  (islower(s[0]))
+                return VGET;
+            else
+                return VSET;
+            }
+        } else {
+            s[0] = c;
+            s[1] = '\0';
+    }
+    return c;
+}
+#define BUFSIZE 100
+
+char buf[BUFSIZE]; /* buffer for ungetch */
+
+int bufp = 0; /* next free position in buf */
+
+int getch(void) { /* get a (possibly pushed-back) character */
+    return (bufp > 0) ? buf[--bufp] : getchar();
+}
+void ungetch(int c) {  /* push character back on input */
+    if (bufp >= BUFSIZE)
+        printf("ungetch: too many characters\n");
+    else
+        buf[bufp++] = c;
+    return;
+}
+double top(void){
+    if (sp > 0)
+        return val[sp - 1];
+    else
+        printf("error: stack empty\n");
+}
+
+void duplicate(void){
+    int i;
+    i = sp - 1;
+    val[sp++] = val[i];
+
+    return;
+}
+
+void swap(void){
+    int aux = val[sp - 2];
+    val[sp - 2] = val[sp - 1];
+    val[sp - 1] = aux;
+
+    return;
+}
+
+void clear(void){
+    sp = 0;
+
+    return;
+}
+void ungets(char s[]){
+    int i;
+    if (BUFSIZE - bufp < strlen(s)) {
+        printf("ungets: too many characters\n");
+    } else{
+        for (i = strlen(s) - 1; i >= 0 && bufp < BUFSIZE; i--){
+            buf[bufp++] = s[i];
+        }
+    }
+    return;
+}
+int getline(int s[], int limit){
+    int i, c;
+    for (i = 0; i < limit - 2 && (c = getchar()) != EOF && c != '\n'; i++)
+        s[i] = c;
+    s[i++] = c;
+    s[i] = '\0';
+    return i;
+}
